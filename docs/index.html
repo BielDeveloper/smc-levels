@@ -465,6 +465,7 @@
             });
 
             fileInput.addEventListener('change', (e) => {
+                console.log('Arquivo selecionado:', e.target.files);
                 if (e.target.files.length > 0) {
                     handleFile(e.target.files[0]);
                 }
@@ -472,6 +473,7 @@
         }
 
         async function handleFile(file) {
+            console.log('Processando arquivo:', file.name, file.size, file.type);
             currentFile = file;
             const loading = document.getElementById('process-loading');
             const preview = document.getElementById('file-preview');
@@ -485,21 +487,49 @@
                 const zip = new JSZip();
                 const contents = await zip.loadAsync(file);
                 
-                // Verifica se tem os arquivos necessários
-                const dataFile = contents.files['data.json'];
-                const previewFile = contents.files['preview.png'];
+                console.log('Arquivos no ZIP:', Object.keys(contents.files));
                 
-                if (!dataFile || !previewFile) {
-                    throw new Error('O arquivo .smc deve conter data.json e preview.png');
+                // Verifica se tem os arquivos necessários (busca em qualquer lugar do ZIP)
+                let dataFile = null;
+                let previewFile = null;
+                
+                // Procura pelos arquivos necessários
+                Object.keys(contents.files).forEach(fileName => {
+                    const lowerName = fileName.toLowerCase();
+                    if (lowerName.endsWith('data.json') && !contents.files[fileName].dir) {
+                        dataFile = contents.files[fileName];
+                        console.log('Encontrou data.json:', fileName);
+                    }
+                    if ((lowerName.endsWith('preview.png') || lowerName.endsWith('.png')) && !contents.files[fileName].dir) {
+                        previewFile = contents.files[fileName];
+                        console.log('Encontrou preview:', fileName);
+                    }
+                });
+                
+                if (!dataFile) {
+                    throw new Error('Arquivo data.json não encontrado no .smc');
+                }
+                
+                if (!previewFile) {
+                    throw new Error('Arquivo preview.png não encontrado no .smc');
                 }
 
                 // Extrai os dados
                 const dataContent = await dataFile.async('text');
+                console.log('Conteúdo do data.json:', dataContent.substring(0, 200) + '...');
+                
                 const previewBlob = await previewFile.async('blob');
                 const previewUrl = URL.createObjectURL(previewBlob);
 
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(dataContent);
+                } catch (jsonError) {
+                    throw new Error('data.json contém JSON inválido: ' + jsonError.message);
+                }
+
                 processedData = {
-                    data: JSON.parse(dataContent),
+                    data: parsedData,
                     previewUrl: previewUrl,
                     previewBlob: previewBlob
                 };
@@ -508,6 +538,7 @@
                 showFilePreview(processedData);
                 
             } catch (error) {
+                console.error('Erro ao processar arquivo:', error);
                 showError('Erro ao processar arquivo: ' + error.message);
             } finally {
                 loading.style.display = 'none';
@@ -538,18 +569,28 @@
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            console.log('Formulário enviado, processedData:', processedData);
+            
             if (!processedData) {
                 showError('Por favor, selecione um arquivo .smc válido primeiro.');
                 return;
             }
 
             const formData = {
-                author: document.getElementById('author-name').value,
-                name: document.getElementById('level-name').value,
-                description: document.getElementById('level-description').value,
+                author: document.getElementById('author-name').value.trim(),
+                name: document.getElementById('level-name').value.trim(),
+                description: document.getElementById('level-description').value.trim(),
                 difficulty: document.getElementById('difficulty').value,
                 tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
             };
+            
+            console.log('Dados do formulário:', formData);
+            
+            // Validação
+            if (!formData.author || !formData.name || !formData.description || !formData.difficulty) {
+                showError('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
 
             generateGitHubCode(formData);
         });
@@ -724,6 +765,7 @@
         }
 
         function showError(message) {
+            console.error('Erro:', message);
             const resultContainer = document.getElementById('result-container');
             resultContainer.innerHTML = `<div class="error-message">${message}</div>`;
         }
