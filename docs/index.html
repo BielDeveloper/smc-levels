@@ -327,10 +327,10 @@
                     </details>
                 </div>
 
-                <div class="form-group">
-                    <label for="github-token">🔑 GitHub Token (opcional - para upload automático):</label>
-                    <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxx (deixe vazio para modo manual)">
-                    <small style="color: #666;">Com o token, sua fase será adicionada automaticamente ao repositório!</small>
+                <div class="form-group" style="background: rgba(102, 126, 234, 0.05); padding: 15px; border-radius: 8px; border: 2px solid rgba(102, 126, 234, 0.2); display: none;" id="token-field">
+                    <label for="github-token" style="color: #667eea; font-size: 1.1rem;">🔑 GitHub Token (backup):</label>
+                    <input type="password" id="github-token" placeholder="só se necessário">
+                    <small style="color: #667eea;">Caso o token fixo no código não funcione</small>
                 </div>
 
                 <form id="upload-form">
@@ -435,12 +435,16 @@
         // Configuração do GitHub
         const GITHUB_USER = 'bieldeveloper';
         const GITHUB_REPO = 'smc-levels';
-        const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/levels/metadata.json`;
+                // ⚠️ SUBSTITUA 'SEU_USUARIO' E 'SEU_REPO' PELOS SEUS DADOS REAIS!
+        const GITHUB_USER = 'bieldeveloper';  // ← MUDE AQUI
+        const GITHUB_REPO = 'smc-levels';   // ← MUDE AQUI SE NECESSÁRIO
+        const GITHUB_TOKEN = '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';
         
+        
+        const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/levels/metadata.json`;
         let currentFile = null;
-        let processedData = null;
 
-        // Navegação entre abas
+        let processedData = null;
         function showSection(sectionName) {
             // Remove active de todas as abas e seções
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -599,7 +603,7 @@
                 description: document.getElementById('level-description').value.trim(),
                 difficulty: document.getElementById('difficulty').value,
                 tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
-                githubToken: document.getElementById('github-token').value.trim()
+                githubToken: GITHUB_TOKEN || document.getElementById('github-token').value.trim()
             };
             
             console.log('Dados do formulário:', formData);
@@ -613,7 +617,7 @@
             if (formData.githubToken) {
                 await uploadToGitHub(formData);
             } else {
-                generateGitHubCode(formData);
+                showError('Token GitHub não encontrado. Cole um token no código ou no campo abaixo.');
             }
         });
 
@@ -774,10 +778,7 @@
             });
         }
         
-        function showSuccess(message) {
-            const resultContainer = document.getElementById('result-container');
-            resultContainer.innerHTML = `<div class="success-message">${message}</div>`;
-        }
+        function generateGitHubCode(formData) {
             const filename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.smc`;
             const previewFilename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`;
             
@@ -796,8 +797,8 @@
 
             const instructions = `
                 <div class="success-message">
-                    <h3>🎉 Código gerado com sucesso!</h3>
-                    <p>Siga estas instruções para adicionar sua fase ao repositório:</p>
+                    <h3>📋 Modo Manual</h3>
+                    <p>Para upload automático, forneça um GitHub Token acima. Caso contrário, siga as instruções abaixo:</p>
                 </div>
                 
                 <div class="github-info">
@@ -822,6 +823,11 @@
             `;
 
             document.getElementById('result-container').innerHTML = instructions;
+        }
+        
+        function showSuccess(message) {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<div class="success-message">${message}</div>`;
         }
 
         function downloadCurrentFile(filename) {
