@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMC - Central de Fases</title>
+    <title>SMC Central - Upload de Fases</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -41,218 +42,242 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .header p {
-            font-size: 1.2rem;
-            color: #666;
-        }
-
-        .stats {
+        .nav-tabs {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 20px;
             margin-top: 20px;
-            flex-wrap: wrap;
         }
 
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             font-weight: bold;
             color: #667eea;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #888;
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #764ba2;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2rem;
-            color: #666;
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.2);
         }
 
-        .levels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+        .nav-tab.active:hover {
+            background: #764ba2;
         }
 
-        .level-card {
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Upload Section */
+        .upload-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            overflow: hidden;
+            padding: 30px;
+            margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
 
-        .level-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        .user-login {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
         }
 
-        .level-preview {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            color: #ccc;
-            position: relative;
-            overflow: hidden;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .level-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .level-info {
-            padding: 20px;
-        }
-
-        .level-title {
-            font-size: 1.4rem;
-            font-weight: bold;
+        .form-group label {
+            display: block;
             margin-bottom: 8px;
+            font-weight: bold;
             color: #333;
         }
 
-        .level-author {
-            color: #667eea;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
         }
 
-        .level-description {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
-        .level-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .level-difficulty {
-            padding: 4px 12px;
+        .upload-zone {
+            border: 3px dashed #667eea;
             border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 40px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
 
-        .difficulty-easy {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .difficulty-medium {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .difficulty-hard {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .level-downloads {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        .level-tags {
-            margin-bottom: 15px;
-        }
-
-        .tag {
-            display: inline-block;
+        .upload-zone:hover {
             background: rgba(102, 126, 234, 0.1);
+            border-color: #764ba2;
+        }
+
+        .upload-zone.dragover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
             color: #667eea;
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            margin-right: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 20px;
         }
 
-        .download-section {
-            display: flex;
-            gap: 10px;
+        .file-input {
+            display: none;
         }
 
-        .download-btn {
-            flex: 1;
-            padding: 12px 20px;
+        .btn {
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-            font-size: 0.9rem;
+            font-size: 16px;
         }
 
-        .download-game {
+        .btn-primary {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
         }
 
-        .download-game:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .download-file {
+        .btn-secondary {
             background: rgba(102, 126, 234, 0.1);
             color: #667eea;
-            border: 1px solid rgba(102, 126, 234, 0.3);
+            border: 2px solid rgba(102, 126, 234, 0.3);
         }
 
-        .download-file:hover {
+        .btn-secondary:hover {
             background: rgba(102, 126, 234, 0.2);
         }
 
-        .error-message {
-            background: rgba(248, 215, 218, 0.95);
-            color: #721c24;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
+        .file-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
         }
 
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
             .header h1 {
                 font-size: 2rem;
             }
-            
-            .stats {
-                gap: 15px;
-            }
-            
-            .levels-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .download-section {
-                flex-direction: column;
-            }
+        }
+
+        /* GitHub Instructions */
+        .github-info {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .github-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .github-info ol {
+            padding-left: 20px;
+        }
+
+        .github-info li {
+            margin-bottom: 8px;
+        }
+
+        .github-info code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -260,43 +285,350 @@
     <div class="container">
         <div class="header">
             <h1>🎮 SMC Central</h1>
-            <p>Descubra, baixe e compartilhe fases criadas pela comunidade!</p>
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-number" id="total-levels">-</div>
-                    <div class="stat-label">Fases Disponíveis</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="total-authors">-</div>
-                    <div class="stat-label">Criadores</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" id="total-downloads">-</div>
-                    <div class="stat-label">Downloads</div>
-                </div>
+            <p>Compartilhe suas fases com a comunidade!</p>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showSection('browse')">📋 Explorar</div>
+                <div class="nav-tab" onclick="showSection('upload')">📤 Enviar Fase</div>
+                <div class="nav-tab" onclick="showSection('help')">❓ Como Usar</div>
             </div>
         </div>
 
-        <div id="loading" class="loading">
-            🔄 Carregando fases disponíveis...
+        <!-- Seção de Explorar Fases -->
+        <div id="browse-section" class="content-section active">
+            <div class="upload-section">
+                <h2>🎯 Fases Disponíveis</h2>
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    Carregando fases...
+                </div>
+                <div id="levels-container" class="levels-grid" style="display: none;"></div>
+                <div id="error-container"></div>
+            </div>
         </div>
 
-        <div id="error-container"></div>
-        
-        <div id="levels-container" class="levels-grid" style="display: none;"></div>
+        <!-- Seção de Upload -->
+        <div id="upload-section" class="content-section">
+            <div class="upload-section">
+                <h2>📤 Enviar Nova Fase</h2>
+                
+                <div class="github-info">
+                    <h3>🔧 Para desenvolvedores:</h3>
+                    <p>Este sistema gera o código necessário para adicionar sua fase ao repositório GitHub. Você precisará fazer um Pull Request manual.</p>
+                </div>
+
+                <form id="upload-form">
+                    <div class="form-group">
+                        <label for="author-name">👤 Seu Nome/Nickname:</label>
+                        <input type="text" id="author-name" required placeholder="Como você quer ser conhecido">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="level-name">🎮 Nome da Fase:</label>
+                        <input type="text" id="level-name" required placeholder="Ex: Castelo do Dragão">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="level-description">📝 Descrição:</label>
+                        <textarea id="level-description" required rows="3" placeholder="Descreva sua fase..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficulty">⚡ Dificuldade:</label>
+                        <select id="difficulty" required>
+                            <option value="">Selecione...</option>
+                            <option value="Fácil">Fácil</option>
+                            <option value="Médio">Médio</option>
+                            <option value="Difícil">Difícil</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tags">🏷️ Tags (separadas por vírgula):</label>
+                        <input type="text" id="tags" placeholder="Ex: aventura, plataforma, puzzle">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📁 Arquivo .smc da Fase:</label>
+                        <div class="upload-zone" id="upload-zone">
+                            <div class="upload-icon">📁</div>
+                            <p>Clique aqui ou arraste seu arquivo .smc</p>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                                O arquivo deve conter data.json e preview.png
+                            </p>
+                        </div>
+                        <input type="file" id="file-input" class="file-input" accept=".smc,.zip" required>
+                    </div>
+
+                    <div id="file-preview" class="file-preview" style="display: none;">
+                        <h4>📋 Preview da Fase:</h4>
+                        <div id="preview-content"></div>
+                    </div>
+
+                    <div class="loading" id="process-loading">
+                        <div class="spinner"></div>
+                        Processando arquivo...
+                    </div>
+
+                    <div id="result-container"></div>
+
+                    <button type="submit" class="btn btn-primary">🚀 Gerar Código para GitHub</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Seção de Ajuda -->
+        <div id="help-section" class="content-section">
+            <div class="upload-section">
+                <h2>❓ Como Usar o SMC Central</h2>
+                
+                <div class="github-info">
+                    <h3>📤 Para enviar sua fase:</h3>
+                    <ol>
+                        <li>Crie sua fase no jogo SMC</li>
+                        <li>Exporte como arquivo <code>.smc</code> (que deve conter <code>data.json</code> e <code>preview.png</code>)</li>
+                        <li>Preencha o formulário na aba "Enviar Fase"</li>
+                        <li>O sistema gerará o código necessário para adicionar ao GitHub</li>
+                        <li>Faça um Pull Request no repositório seguindo as instruções geradas</li>
+                    </ol>
+                </div>
+
+                <div class="github-info">
+                    <h3>🎮 Para jogar fases da comunidade:</h3>
+                    <ol>
+                        <li>Navegue pela aba "Explorar" para ver fases disponíveis</li>
+                        <li>Clique em "Abrir no Jogo" para tentar abrir diretamente</li>
+                        <li>Ou use "Download Direto" para baixar o arquivo <code>.smc</code></li>
+                        <li>Importe o arquivo no seu jogo SMC</li>
+                    </ol>
+                </div>
+
+                <div class="github-info">
+                    <h3>⚙️ Estrutura do arquivo .smc:</h3>
+                    <p>O arquivo .smc é um ZIP que deve conter:</p>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                        <li><code>data.json</code> - Dados da fase (entidades, tilemaps, etc.)</li>
+                        <li><code>preview.png</code> - Imagem de preview da fase</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ⚠️ SUBSTITUA 'SEU_USUARIO' E 'SEU_REPO' PELOS SEUS DADOS REAIS!
-        const GITHUB_USER = 'bieldeveloper';  // ← MUDE AQUI
-        const GITHUB_REPO = 'smc-levels';   // ← MUDE AQUI SE NECESSÁRIO
-        
+        // Configuração do GitHub
+        const GITHUB_USER = 'bieldeveloper';
+        const GITHUB_REPO = 'smc-levels';
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/levels/metadata.json`;
         
+        let currentFile = null;
+        let processedData = null;
+
+        // Navegação entre abas
+        function showSection(sectionName) {
+            // Remove active de todas as abas e seções
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            
+            // Ativa a aba clicada
+            event.target.classList.add('active');
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Se for a aba de explorar, carrega as fases
+            if (sectionName === 'browse') {
+                loadLevels();
+            }
+        }
+
+        // Upload de arquivo
+        function setupFileUpload() {
+            const uploadZone = document.getElementById('upload-zone');
+            const fileInput = document.getElementById('file-input');
+
+            uploadZone.addEventListener('click', () => fileInput.click());
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        async function handleFile(file) {
+            currentFile = file;
+            const loading = document.getElementById('process-loading');
+            const preview = document.getElementById('file-preview');
+            const resultContainer = document.getElementById('result-container');
+            
+            loading.style.display = 'block';
+            preview.style.display = 'none';
+            resultContainer.innerHTML = '';
+
+            try {
+                const zip = new JSZip();
+                const contents = await zip.loadAsync(file);
+                
+                // Verifica se tem os arquivos necessários
+                const dataFile = contents.files['data.json'];
+                const previewFile = contents.files['preview.png'];
+                
+                if (!dataFile || !previewFile) {
+                    throw new Error('O arquivo .smc deve conter data.json e preview.png');
+                }
+
+                // Extrai os dados
+                const dataContent = await dataFile.async('text');
+                const previewBlob = await previewFile.async('blob');
+                const previewUrl = URL.createObjectURL(previewBlob);
+
+                processedData = {
+                    data: JSON.parse(dataContent),
+                    previewUrl: previewUrl,
+                    previewBlob: previewBlob
+                };
+
+                // Mostra o preview
+                showFilePreview(processedData);
+                
+            } catch (error) {
+                showError('Erro ao processar arquivo: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function showFilePreview(data) {
+            const preview = document.getElementById('file-preview');
+            const content = document.getElementById('preview-content');
+            
+            const entitiesCount = data.data.entities ? data.data.entities.length : 0;
+            const tilemapsCount = data.data.tilemaps ? data.data.tilemaps.length : 0;
+            
+            content.innerHTML = `
+                <img src="${data.previewUrl}" class="preview-image" alt="Preview da fase">
+                <div style="margin-top: 15px;">
+                    <p><strong>📊 Estatísticas da Fase:</strong></p>
+                    <p>🎯 Entidades: ${entitiesCount}</p>
+                    <p>🗺️ Tilemaps: ${tilemapsCount}</p>
+                    <p>✅ Arquivo válido e pronto para envio!</p>
+                </div>
+            `;
+            
+            preview.style.display = 'block';
+        }
+
+        // Formulário de upload
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!processedData) {
+                showError('Por favor, selecione um arquivo .smc válido primeiro.');
+                return;
+            }
+
+            const formData = {
+                author: document.getElementById('author-name').value,
+                name: document.getElementById('level-name').value,
+                description: document.getElementById('level-description').value,
+                difficulty: document.getElementById('difficulty').value,
+                tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
+            };
+
+            generateGitHubCode(formData);
+        });
+
+        function generateGitHubCode(formData) {
+            const filename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.smc`;
+            const previewFilename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`;
+            
+            const newLevel = {
+                filename: filename,
+                name: formData.name,
+                author: formData.author,
+                description: formData.description,
+                difficulty: formData.difficulty,
+                tags: formData.tags,
+                version: "1.0",
+                preview_url: `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/levels/previews/${previewFilename}`,
+                created_at: new Date().toISOString().split('T')[0],
+                downloads: 0
+            };
+
+            const instructions = `
+                <div class="success-message">
+                    <h3>🎉 Código gerado com sucesso!</h3>
+                    <p>Siga estas instruções para adicionar sua fase ao repositório:</p>
+                </div>
+                
+                <div class="github-info">
+                    <h3>📋 Instruções para GitHub:</h3>
+                    <ol>
+                        <li>Acesse o repositório: <a href="https://github.com/${GITHUB_USER}/${GITHUB_REPO}" target="_blank">github.com/${GITHUB_USER}/${GITHUB_REPO}</a></li>
+                        <li>Faça um Fork do repositório</li>
+                        <li>Adicione seu arquivo <code>${filename}</code> na pasta <code>levels/</code></li>
+                        <li>Adicione a imagem preview como <code>levels/previews/${previewFilename}</code></li>
+                        <li>Edite o arquivo <code>levels/metadata.json</code> e adicione esta entrada:</li>
+                    </ol>
+                    
+                    <h4>📝 Código para adicionar no metadata.json:</h4>
+                    <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${JSON.stringify(newLevel, null, 2)}</textarea>
+                    
+                    <p><strong>⚠️ Importante:</strong> Adicione a entrada acima dentro do array "levels" no metadata.json, separada por vírgula dos outros itens.</p>
+                    
+                    <h4>📁 Arquivos para upload:</h4>
+                    <button onclick="downloadCurrentFile('${filename}')" class="btn btn-secondary">📁 Download ${filename}</button>
+                    <button onclick="downloadPreview('${previewFilename}')" class="btn btn-secondary">🖼️ Download ${previewFilename}</button>
+                </div>
+            `;
+
+            document.getElementById('result-container').innerHTML = instructions;
+        }
+
+        function downloadCurrentFile(filename) {
+            if (currentFile) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(currentFile);
+                link.download = filename;
+                link.click();
+            }
+        }
+
+        function downloadPreview(filename) {
+            if (processedData && processedData.previewBlob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(processedData.previewBlob);
+                link.download = filename;
+                link.click();
+            }
+        }
+
+        // Carregar fases existentes (mesmo código da versão anterior)
         async function loadLevels() {
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('levels-container');
+            
+            loading.style.display = 'block';
+            container.style.display = 'none';
+            
             try {
                 const response = await fetch(API_URL);
-                
                 if (!response.ok) {
                     throw new Error(`Erro HTTP: ${response.status}`);
                 }
@@ -306,20 +638,20 @@
                 const metadata = JSON.parse(content);
                 
                 displayLevels(metadata.levels);
-                updateStats(metadata.levels);
                 
             } catch (error) {
                 console.error('Erro ao carregar fases:', error);
                 showError('Não foi possível carregar as fases. Verifique sua conexão e tente novamente.');
+            } finally {
+                loading.style.display = 'none';
             }
         }
-        
+
         function displayLevels(levels) {
             const container = document.getElementById('levels-container');
-            const loading = document.getElementById('loading');
-            
-            loading.style.display = 'none';
             container.style.display = 'grid';
+            container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(350px, 1fr))';
+            container.style.gap = '25px';
             
             if (levels.length === 0) {
                 container.innerHTML = '<div class="error-message">Nenhuma fase encontrada ainda. Seja o primeiro a compartilhar!</div>';
@@ -333,69 +665,53 @@
                 container.appendChild(card);
             });
         }
-        
+
         function createLevelCard(level) {
             const card = document.createElement('div');
-            card.className = 'level-card';
+            card.style.cssText = `
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+            `;
             
-            const difficultyClass = `difficulty-${level.difficulty.toLowerCase()}`;
-            const tagsHtml = level.tags ? level.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+            const difficultyClass = level.difficulty.toLowerCase() === 'fácil' ? '#d4edda' : 
+                                  level.difficulty.toLowerCase() === 'médio' ? '#fff3cd' : '#f8d7da';
+            const difficultyColor = level.difficulty.toLowerCase() === 'fácil' ? '#155724' : 
+                                   level.difficulty.toLowerCase() === 'médio' ? '#856404' : '#721c24';
+            
+            const tagsHtml = level.tags ? level.tags.map(tag => 
+                `<span style="display: inline-block; background: rgba(102, 126, 234, 0.1); color: #667eea; padding: 4px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 6px; margin-bottom: 6px;">${tag}</span>`
+            ).join('') : '';
             
             card.innerHTML = `
-                <div class="level-preview">
-                    ${level.preview_url ? `<img src="${level.preview_url}" alt="Preview de ${level.name}" onerror="this.style.display='none'">` : '🎮'}
+                <div style="width: 100%; height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #ccc; overflow: hidden;">
+                    ${level.preview_url ? `<img src="${level.preview_url}" alt="Preview de ${level.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">` : '🎮'}
                 </div>
-                <div class="level-info">
-                    <div class="level-title">${level.name}</div>
-                    <div class="level-author">👤 ${level.author}</div>
-                    <div class="level-description">${level.description}</div>
-                    <div class="level-meta">
-                        <span class="level-difficulty ${difficultyClass}">${level.difficulty}</span>
-                        <span class="level-downloads">📥 ${level.downloads} downloads</span>
+                <div style="padding: 20px;">
+                    <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #333;">${level.name}</div>
+                    <div style="color: #667eea; font-size: 0.9rem; margin-bottom: 12px;">👤 ${level.author}</div>
+                    <div style="color: #666; line-height: 1.5; margin-bottom: 15px; font-size: 0.95rem;">${level.description}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                        <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; background: ${difficultyClass}; color: ${difficultyColor};">${level.difficulty}</span>
+                        <span style="color: #888; font-size: 0.85rem;">📥 ${level.downloads} downloads</span>
                     </div>
-                    <div class="level-tags">${tagsHtml}</div>
-                    <div class="download-section">
-                        <button class="download-btn download-game" onclick="openInGame('${level.filename}')">
-                            🎮 Abrir no Jogo
-                        </button>
-                        <a class="download-btn download-file" 
-                           href="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/main/levels/${level.filename}" 
-                           download="${level.filename}">
-                            💾 Download Direto
-                        </a>
+                    <div style="margin-bottom: 15px;">${tagsHtml}</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="openInGame('${level.filename}')" style="flex: 1; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-size: 0.9rem;">🎮 Abrir no Jogo</button>
+                        <a href="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/main/levels/${level.filename}" download="${level.filename}" style="flex: 1; padding: 12px 20px; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; background: rgba(102, 126, 234, 0.1); color: #667eea; font-size: 0.9rem;">💾 Download</a>
                     </div>
                 </div>
             `;
             
             return card;
         }
-        
-        function updateStats(levels) {
-            const totalLevels = levels.length;
-            const totalAuthors = new Set(levels.map(l => l.author)).size;
-            const totalDownloads = levels.reduce((sum, l) => sum + (l.downloads || 0), 0);
-            
-            document.getElementById('total-levels').textContent = totalLevels;
-            document.getElementById('total-authors').textContent = totalAuthors;
-            document.getElementById('total-downloads').textContent = totalDownloads;
-        }
-        
-        function showError(message) {
-            const loading = document.getElementById('loading');
-            const errorContainer = document.getElementById('error-container');
-            
-            loading.style.display = 'none';
-            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
-        }
-        
+
         function openInGame(filename) {
-            // Tenta abrir no jogo via URL scheme customizada
             const gameUrl = `smc://download/${filename}`;
-            
-            // Primeiro tenta o protocolo customizado
             window.location.href = gameUrl;
             
-            // Fallback: após um tempo, oferece download direto
             setTimeout(() => {
                 const userWantsDownload = confirm(
                     'O jogo não foi detectado. Deseja fazer download do arquivo diretamente?'
@@ -406,9 +722,17 @@
                 }
             }, 1000);
         }
-        
-        // Carrega as fases quando a página carregar
-        document.addEventListener('DOMContentLoaded', loadLevels);
+
+        function showError(message) {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFileUpload();
+            loadLevels(); // Carrega as fases inicialmente
+        });
     </script>
 </body>
 </html>
