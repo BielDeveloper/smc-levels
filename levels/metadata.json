@@ -1,0 +1,16 @@
+{
+  "levels": [
+    {
+      "filename": "exemplo_fase1.smc",
+      "name": "Minha Primeira Fase",
+      "author": "Seu Nome Aqui",
+      "description": "Uma fase de exemplo para testar o sistema!",
+      "difficulty": "Fácil",
+      "tags": ["exemplo", "tutorial", "iniciante"],
+      "version": "1.0",
+      "preview_url": "https://raw.githubusercontent.com/BielDeveloper/smc-levels/main/levels/previews/exemplo_fase1.png",
+      "created_at": "2025-01-15",
+      "downloads": 0
+    }
+  ]
+}
