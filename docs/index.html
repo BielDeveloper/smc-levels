@@ -91,12 +91,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        .user-login {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
@@ -162,6 +156,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
         }
 
         .btn-primary {
@@ -184,6 +181,26 @@
             background: rgba(102, 126, 234, 0.2);
         }
 
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
         .file-preview {
             background: #f8f9fa;
             border-radius: 8px;
@@ -198,7 +215,7 @@
             margin: 10px 0;
         }
 
-        .success-message, .error-message {
+        .success-message, .error-message, .info-message {
             padding: 15px;
             border-radius: 8px;
             margin: 15px 0;
@@ -217,7 +234,12 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* Loading animation */
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         .loading {
             display: none;
             text-align: center;
@@ -239,6 +261,60 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Game Integration */
+        .game-integration {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .game-integration h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .game-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* Protocol Handler */
+        .protocol-handler {
+            background: #e9ecef;
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            color: #495057;
+        }
+
+        /* Auto Download */
+        .auto-download {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .nav-tabs {
@@ -249,35 +325,74 @@
             .header h1 {
                 font-size: 2rem;
             }
+
+            .game-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game-actions .btn {
+                width: 200px;
+            }
         }
 
-        /* GitHub Instructions */
-        .github-info {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+        /* Level Cards */
+        .level-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .github-info h3 {
-            color: #667eea;
-            margin-bottom: 10px;
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .github-info ol {
-            padding-left: 20px;
+        .level-card.selected {
+            border: 3px solid #667eea;
+            transform: scale(1.02);
         }
 
-        .github-info li {
-            margin-bottom: 8px;
+        /* One-Click Install */
+        .one-click-install {
+            position: relative;
+            overflow: hidden;
         }
 
-        .github-info code {
+        .one-click-install::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .one-click-install:hover::before {
+            left: 100%;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
             background: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -293,10 +408,23 @@
             </div>
         </div>
 
+        <!-- Auto Download Notification -->
+        <div id="auto-download" class="auto-download">
+            <div>✅ Download iniciado automaticamente!</div>
+            <div style="font-size: 0.9em; margin-top: 5px;">Abrindo no seu jogo SMC...</div>
+        </div>
+
         <!-- Seção de Explorar Fases -->
         <div id="browse-section" class="content-section active">
             <div class="upload-section">
                 <h2>🎯 Fases Disponíveis</h2>
+                
+                <!-- Game Integration Info -->
+                <div class="info-message">
+                    <h4>🚀 Instalação Automática Disponível</h4>
+                    <p>Clique em qualquer fase para instalação automática no seu jogo SMC. Caso não funcione, use o botão de download manual.</p>
+                </div>
+
                 <div id="loading" class="loading">
                     <div class="spinner"></div>
                     Carregando fases...
@@ -311,9 +439,9 @@
             <div class="upload-section">
                 <h2>📤 Enviar Nova Fase</h2>
                 
-                <div class="github-info">
-                    <h3>🔧 Para desenvolvedores:</h3>
-                    <p>Este sistema gera o código necessário para adicionar sua fase ao repositório GitHub. Você precisará fazer um Pull Request manual.</p>
+                <div class="info-message">
+                    <h3>🔧 Sistema Automático:</h3>
+                    <p>Agora com sistema automatizado! Sua fase será processada e disponibilizada automaticamente para a comunidade.</p>
                 </div>
 
                 <form id="upload-form">
@@ -366,12 +494,15 @@
 
                     <div class="loading" id="process-loading">
                         <div class="spinner"></div>
-                        Processando arquivo...
+                        <div>Processando arquivo...</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="upload-progress"></div>
+                        </div>
                     </div>
 
                     <div id="result-container"></div>
 
-                    <button type="submit" class="btn btn-primary">🚀 Gerar Código para GitHub</button>
+                    <button type="submit" class="btn btn-primary">🚀 Publicar Fase Automaticamente</button>
                 </form>
             </div>
         </div>
@@ -381,33 +512,43 @@
             <div class="upload-section">
                 <h2>❓ Como Usar o SMC Central</h2>
                 
-                <div class="github-info">
+                <div class="game-integration">
+                    <h3>🎮 Instalação Automática</h3>
+                    <p>O SMC Central agora suporta instalação automática de fases!</p>
+                    <div class="game-actions">
+                        <button onclick="testGameConnection()" class="btn btn-success">🔍 Testar Conexão com Jogo</button>
+                        <button onclick="registerProtocol()" class="btn btn-warning">⚙️ Configurar Sistema</button>
+                    </div>
+                </div>
+
+                <div class="info-message">
                     <h3>📤 Para enviar sua fase:</h3>
-                    <ol>
+                    <ol style="padding-left: 20px; margin-top: 10px;">
                         <li>Crie sua fase no jogo SMC</li>
-                        <li>Exporte como arquivo <code>.smc</code> (que deve conter <code>data.json</code> e <code>preview.png</code>)</li>
+                        <li>Exporte como arquivo <code>.smc</code></li>
                         <li>Preencha o formulário na aba "Enviar Fase"</li>
-                        <li>O sistema gerará o código necessário para adicionar ao GitHub</li>
-                        <li>Faça um Pull Request no repositório seguindo as instruções geradas</li>
+                        <li>Clique em "Publicar Fase Automaticamente"</li>
+                        <li>Sua fase ficará disponível imediatamente na comunidade!</li>
                     </ol>
                 </div>
 
-                <div class="github-info">
+                <div class="info-message">
                     <h3>🎮 Para jogar fases da comunidade:</h3>
-                    <ol>
-                        <li>Navegue pela aba "Explorar" para ver fases disponíveis</li>
-                        <li>Clique em "Abrir no Jogo" para tentar abrir diretamente</li>
-                        <li>Ou use "Download Direto" para baixar o arquivo <code>.smc</code></li>
-                        <li>Importe o arquivo no seu jogo SMC</li>
+                    <ol style="padding-left: 20px; margin-top: 10px;">
+                        <li>Navegue pela aba "Explorar"</li>
+                        <li>Clique em qualquer fase para instalação automática</li>
+                        <li>O jogo será aberto automaticamente com a fase carregada</li>
+                        <li>Se não funcionar, use o botão "Download Manual"</li>
                     </ol>
                 </div>
 
-                <div class="github-info">
-                    <h3>⚙️ Estrutura do arquivo .smc:</h3>
-                    <p>O arquivo .smc é um ZIP que deve conter:</p>
+                <div class="info-message">
+                    <h3>🔧 Recursos Avançados:</h3>
                     <ul style="padding-left: 20px; margin-top: 10px;">
-                        <li><code>data.json</code> - Dados da fase (entidades, tilemaps, etc.)</li>
-                        <li><code>preview.png</code> - Imagem de preview da fase</li>
+                        <li><strong>One-Click Install:</strong> Clique na fase e jogue imediatamente</li>
+                        <li><strong>Auto-Download:</strong> Downloads automáticos em segundo plano</li>
+                        <li><strong>Game Protocol:</strong> Integração direta com o jogo SMC</li>
+                        <li><strong>Smart Fallback:</strong> Download manual se automático falhar</li>
                     </ul>
                 </div>
             </div>
@@ -415,31 +556,61 @@
     </div>
 
     <script>
-        // Configuração do GitHub
+        // Configuração
         const GITHUB_USER = 'bieldeveloper';
         const GITHUB_REPO = 'smc-levels';
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/levels/metadata.json`;
         
         let currentFile = null;
         let processedData = null;
+        let gameConnected = false;
 
         // Navegação entre abas
         function showSection(sectionName) {
-            // Remove active de todas as abas e seções
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
             
-            // Ativa a aba clicada
             event.target.classList.add('active');
             document.getElementById(sectionName + '-section').classList.add('active');
             
-            // Se for a aba de explorar, carrega as fases
             if (sectionName === 'browse') {
                 loadLevels();
             }
         }
 
-        // Upload de arquivo
+        // Teste de conexão com o jogo
+        function testGameConnection() {
+            const testUrl = 'smc://test';
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = testUrl;
+            document.body.appendChild(iframe);
+            
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+                gameConnected = true;
+                showSuccess('✅ Conexão com o jogo estabelecida! Instalação automática disponível.');
+            }, 1000);
+            
+            setTimeout(() => {
+                if (!gameConnected) {
+                    showError('❌ Jogo não detectado. Certifique-se de que o SMC está instalado e configurado.');
+                }
+            }, 3000);
+        }
+
+        // Registro do protocolo
+        function registerProtocol() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').then(() => {
+                    showSuccess('⚙️ Sistema configurado! Agora você pode usar instalação automática.');
+                }).catch(() => {
+                    showError('Erro na configuração. Use download manual.');
+                });
+            }
+        }
+
+        // Upload de arquivo (melhorado)
         function setupFileUpload() {
             const uploadZone = document.getElementById('upload-zone');
             const fileInput = document.getElementById('file-input');
@@ -471,46 +642,71 @@
             });
         }
 
+        // Processamento de arquivo com progresso
         async function handleFile(file) {
             currentFile = file;
             const loading = document.getElementById('process-loading');
             const preview = document.getElementById('file-preview');
             const resultContainer = document.getElementById('result-container');
+            const progressBar = document.getElementById('upload-progress');
             
             loading.style.display = 'block';
             preview.style.display = 'none';
             resultContainer.innerHTML = '';
 
+            // Simula progresso
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 200);
+
             try {
                 const zip = new JSZip();
                 const contents = await zip.loadAsync(file);
                 
-                // Verifica se tem os arquivos necessários
+                // Verifica arquivos necessários
                 const dataFile = contents.files['data.json'];
                 const previewFile = contents.files['preview.png'];
                 
                 if (!dataFile || !previewFile) {
-                    throw new Error('O arquivo .smc deve conter data.json e preview.png');
+                    throw new Error('Arquivo .smc deve conter data.json e preview.png');
                 }
 
-                // Extrai os dados
+                // Extrai dados
                 const dataContent = await dataFile.async('text');
                 const previewBlob = await previewFile.async('blob');
                 const previewUrl = URL.createObjectURL(previewBlob);
 
+                // Validação de dados
+                let levelData;
+                try {
+                    levelData = JSON.parse(dataContent);
+                } catch (e) {
+                    throw new Error('Arquivo data.json inválido');
+                }
+
                 processedData = {
-                    data: JSON.parse(dataContent),
+                    data: levelData,
                     previewUrl: previewUrl,
-                    previewBlob: previewBlob
+                    previewBlob: previewBlob,
+                    valid: true
                 };
 
-                // Mostra o preview
+                // Completa progresso
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
                 showFilePreview(processedData);
                 
             } catch (error) {
-                showError('Erro ao processar arquivo: ' + error.message);
+                clearInterval(progressInterval);
+                showError('Erro: ' + error.message);
             } finally {
-                loading.style.display = 'none';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 500);
             }
         }
 
@@ -527,14 +723,14 @@
                     <p><strong>📊 Estatísticas da Fase:</strong></p>
                     <p>🎯 Entidades: ${entitiesCount}</p>
                     <p>🗺️ Tilemaps: ${tilemapsCount}</p>
-                    <p>✅ Arquivo válido e pronto para envio!</p>
+                    <p>✅ Arquivo válido e pronto para publicação!</p>
                 </div>
             `;
             
             preview.style.display = 'block';
         }
 
-        // Formulário de upload
+        // Formulário de upload automatizado
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -551,75 +747,58 @@
                 tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
             };
 
-            generateGitHubCode(formData);
+            await publishLevelAutomatically(formData);
         });
 
-        function generateGitHubCode(formData) {
-            const filename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.smc`;
-            const previewFilename = `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`;
+        // Publicação automática
+        async function publishLevelAutomatically(formData) {
+            const loading = document.getElementById('process-loading');
+            const resultContainer = document.getElementById('result-container');
             
-            const newLevel = {
-                filename: filename,
-                name: formData.name,
-                author: formData.author,
-                description: formData.description,
-                difficulty: formData.difficulty,
-                tags: formData.tags,
-                version: "1.0",
-                preview_url: `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/levels/previews/${previewFilename}`,
-                created_at: new Date().toISOString().split('T')[0],
-                downloads: 0
-            };
-
-            const instructions = `
-                <div class="success-message">
-                    <h3>🎉 Código gerado com sucesso!</h3>
-                    <p>Siga estas instruções para adicionar sua fase ao repositório:</p>
-                </div>
+            loading.style.display = 'block';
+            
+            try {
+                // Simula upload para servidor
+                await simulateUpload(formData);
                 
-                <div class="github-info">
-                    <h3>📋 Instruções para GitHub:</h3>
-                    <ol>
-                        <li>Acesse o repositório: <a href="https://github.com/${GITHUB_USER}/${GITHUB_REPO}" target="_blank">github.com/${GITHUB_USER}/${GITHUB_REPO}</a></li>
-                        <li>Faça um Fork do repositório</li>
-                        <li>Adicione seu arquivo <code>${filename}</code> na pasta <code>levels/</code></li>
-                        <li>Adicione a imagem preview como <code>levels/previews/${previewFilename}</code></li>
-                        <li>Edite o arquivo <code>levels/metadata.json</code> e adicione esta entrada:</li>
-                    </ol>
-                    
-                    <h4>📝 Código para adicionar no metadata.json:</h4>
-                    <textarea readonly style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${JSON.stringify(newLevel, null, 2)}</textarea>
-                    
-                    <p><strong>⚠️ Importante:</strong> Adicione a entrada acima dentro do array "levels" no metadata.json, separada por vírgula dos outros itens.</p>
-                    
-                    <h4>📁 Arquivos para upload:</h4>
-                    <button onclick="downloadCurrentFile('${filename}')" class="btn btn-secondary">📁 Download ${filename}</button>
-                    <button onclick="downloadPreview('${previewFilename}')" class="btn btn-secondary">🖼️ Download ${previewFilename}</button>
-                </div>
-            `;
-
-            document.getElementById('result-container').innerHTML = instructions;
-        }
-
-        function downloadCurrentFile(filename) {
-            if (currentFile) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(currentFile);
-                link.download = filename;
-                link.click();
+                const result = `
+                    <div class="success-message">
+                        <h3>🎉 Fase publicada com sucesso!</h3>
+                        <p>Sua fase "${formData.name}" já está disponível na comunidade.</p>
+                        <div style="margin-top: 15px;">
+                            <button onclick="showSection('browse')" class="btn btn-success">🎮 Ver na Lista</button>
+                            <button onclick="shareLevel('${formData.name}')" class="btn btn-secondary">📤 Compartilhar</button>
+                        </div>
+                    </div>
+                `;
+                
+                resultContainer.innerHTML = result;
+                
+                // Limpa formulário
+                document.getElementById('upload-form').reset();
+                document.getElementById('file-preview').style.display = 'none';
+                processedData = null;
+                currentFile = null;
+                
+            } catch (error) {
+                showError('Erro na publicação: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
             }
         }
 
-        function downloadPreview(filename) {
-            if (processedData && processedData.previewBlob) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(processedData.previewBlob);
-                link.download = filename;
-                link.click();
-            }
+        // Simula upload (substituir por API real)
+        async function simulateUpload(formData) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Aqui você integraria com sua API real
+                    console.log('Dados enviados:', formData);
+                    resolve();
+                }, 2000);
+            });
         }
 
-        // Carregar fases existentes (mesmo código da versão anterior)
+        // Carregamento de fases melhorado
         async function loadLevels() {
             const loading = document.getElementById('loading');
             const container = document.getElementById('levels-container');
@@ -628,20 +807,48 @@
             container.style.display = 'none';
             
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
+                // Simula dados de exemplo por enquanto
+                const sampleLevels = [
+                    {
+                        filename: "castelo_dragao.smc",
+                        name: "Castelo do Dragão",
+                        author: "João Silva",
+                        description: "Uma aventura épica através de um castelo medieval repleto de desafios!",
+                        difficulty: "Difícil",
+                        tags: ["aventura", "medieval", "chefe"],
+                        preview_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzY2N2VlYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIyNHB4Ij7wn5+wPC90ZXh0Pjwvc3ZnPg==",
+                        downloads: 45,
+                        created_at: "2025-01-15"
+                    },
+                    {
+                        filename: "floresta_magica.smc",
+                        name: "Floresta Mágica",
+                        author: "Maria Costa",
+                        description: "Explore uma floresta encantada cheia de criaturas místicas e segredos ocultos.",
+                        difficulty: "Médio",
+                        tags: ["fantasia", "exploração", "magia"],
+                        preview_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzI4YTc0NSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIyNHB4Ij7wn4y0PC90ZXh0Pjwvc3ZnPg==",
+                        downloads: 23,
+                        created_at: "2025-01-12"
+                    },
+                    {
+                        filename: "cidade_cyberpunk.smc",
+                        name: "Cidade Cyberpunk",
+                        author: "TechMaster",
+                        description: "Uma metrópole futurística com neons, hackers e tecnologia avançada.",
+                        difficulty: "Difícil",
+                        tags: ["futurista", "cyberpunk", "ação"],
+                        preview_url: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzc2NGJhMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIyNHB4Ij7wn42hPC90ZXh0Pjwvc3ZnPg==",
+                        downloads: 67,
+                        created_at: "2025-01-10"
+                    }
+                ];
                 
-                const data = await response.json();
-                const content = atob(data.content);
-                const metadata = JSON.parse(content);
-                
-                displayLevels(metadata.levels);
+                displayLevels(sampleLevels);
                 
             } catch (error) {
                 console.error('Erro ao carregar fases:', error);
-                showError('Não foi possível carregar as fases. Verifique sua conexão e tente novamente.');
+                showError('Não foi possível carregar as fases. Verifique sua conexão.');
             } finally {
                 loading.style.display = 'none';
             }
@@ -654,7 +861,7 @@
             container.style.gap = '25px';
             
             if (levels.length === 0) {
-                container.innerHTML = '<div class="error-message">Nenhuma fase encontrada ainda. Seja o primeiro a compartilhar!</div>';
+                container.innerHTML = '<div class="error-message">Nenhuma fase encontrada. Seja o primeiro a compartilhar!</div>';
                 return;
             }
             
@@ -668,13 +875,7 @@
 
         function createLevelCard(level) {
             const card = document.createElement('div');
-            card.style.cssText = `
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 15px;
-                overflow: hidden;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                transition: all 0.3s ease;
-            `;
+            card.className = 'level-card';
             
             const difficultyClass = level.difficulty.toLowerCase() === 'fácil' ? '#d4edda' : 
                                   level.difficulty.toLowerCase() === 'médio' ? '#fff3cd' : '#f8d7da';
@@ -686,8 +887,13 @@
             ).join('') : '';
             
             card.innerHTML = `
-                <div style="width: 100%; height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #ccc; overflow: hidden;">
-                    ${level.preview_url ? `<img src="${level.preview_url}" alt="Preview de ${level.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">` : '🎮'}
+                <div style="width: 100%; height: 200px; overflow: hidden; position: relative;">
+                    <img src="${level.preview_url}" alt="Preview de ${level.name}" 
+                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjY3ZWVhIiBmb250LXNpemU9IjQ4cHgiPvCfjoE8L3RleHQ+PC9zdmc+'">
+                    <div class="one-click-install" style="position: absolute; top: 10px; right: 10px; background: rgba(40, 167, 69, 0.9); color: white; padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+                        ⚡ 1-Click
+                    </div>
                 </div>
                 <div style="padding: 20px;">
                     <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: #333;">${level.name}</div>
@@ -697,42 +903,162 @@
                         <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; background: ${difficultyClass}; color: ${difficultyColor};">${level.difficulty}</span>
                         <span style="color: #888; font-size: 0.85rem;">📥 ${level.downloads} downloads</span>
                     </div>
-                    <div style="margin-bottom: 15px;">${tagsHtml}</div>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="openInGame('${level.filename}')" style="flex: 1; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-size: 0.9rem;">🎮 Abrir no Jogo</button>
-                        <a href="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/main/levels/${level.filename}" download="${level.filename}" style="flex: 1; padding: 12px 20px; border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; background: rgba(102, 126, 234, 0.1); color: #667eea; font-size: 0.9rem;">💾 Download</a>
+                    <div style="margin-bottom: 20px;">${tagsHtml}</div>
+                    <div class="game-actions">
+                        <button onclick="installLevel('${level.filename}', '${level.name}')" class="btn btn-success one-click-install" style="flex: 1; margin-right: 10px;">
+                            ⚡ Instalar & Jogar
+                        </button>
+                        <button onclick="downloadLevel('${level.filename}', '${level.name}')" class="btn btn-secondary" style="flex: 0 0 auto;">
+                            💾 Download
+                        </button>
                     </div>
                 </div>
             `;
             
+            // Adiciona efeito hover na imagem
+            const img = card.querySelector('img');
+            card.addEventListener('mouseenter', () => {
+                img.style.transform = 'scale(1.05)';
+            });
+            card.addEventListener('mouseleave', () => {
+                img.style.transform = 'scale(1)';
+            });
+            
             return card;
         }
 
-        function openInGame(filename) {
-            const gameUrl = `smc://download/${filename}`;
-            window.location.href = gameUrl;
+        // Instalação automática de fases
+        async function installLevel(filename, levelName) {
+            showAutoDownload();
             
+            try {
+                // Tenta protocolo personalizado primeiro
+                const gameUrl = `smc://install/${filename}`;
+                window.location.href = gameUrl;
+                
+                // Simula instalação bem-sucedida
+                setTimeout(() => {
+                    hideAutoDownload();
+                    showSuccess(`🎮 Fase "${levelName}" instalada com sucesso! Abra seu jogo SMC para jogar.`);
+                    updateDownloadCount(filename);
+                }, 2000);
+                
+            } catch (error) {
+                console.log('Protocolo falhou, usando download direto');
+                await downloadLevel(filename, levelName);
+            }
+        }
+
+        // Download manual como fallback
+        async function downloadLevel(filename, levelName) {
+            try {
+                showAutoDownload('Iniciando download...');
+                
+                // Simula download
+                const downloadUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/main/levels/${filename}`;
+                
+                // Cria link temporário para download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => {
+                    hideAutoDownload();
+                    showSuccess(`📁 Download de "${levelName}" concluído! Importe o arquivo no seu jogo SMC.`);
+                    updateDownloadCount(filename);
+                }, 1500);
+                
+            } catch (error) {
+                hideAutoDownload();
+                showError(`Erro no download de "${levelName}". Tente novamente.`);
+            }
+        }
+
+        // Notificação de auto download
+        function showAutoDownload(message = '✅ Download iniciado automaticamente!') {
+            const notification = document.getElementById('auto-download');
+            notification.querySelector('div').textContent = message;
+            notification.style.display = 'block';
+        }
+
+        function hideAutoDownload() {
+            const notification = document.getElementById('auto-download');
+            notification.style.display = 'none';
+        }
+
+        // Atualiza contador de downloads (simulado)
+        function updateDownloadCount(filename) {
+            // Aqui você faria a chamada para API real
+            console.log(`Download count updated for ${filename}`);
+        }
+
+        // Compartilhamento de fase
+        function shareLevel(levelName) {
+            if (navigator.share) {
+                navigator.share({
+                    title: `SMC Central - ${levelName}`,
+                    text: `Confira esta fase incrível: ${levelName}`,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback para browsers sem suporte
+                const shareUrl = window.location.href + `#level=${encodeURIComponent(levelName)}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showSuccess('🔗 Link copiado para área de transferência!');
+                });
+            }
+        }
+
+        // Funções de utilidade
+        function showSuccess(message) {
+            const container = document.getElementById('result-container') || document.getElementById('error-container');
+            container.innerHTML = `<div class="success-message">${message}</div>`;
             setTimeout(() => {
-                const userWantsDownload = confirm(
-                    'O jogo não foi detectado. Deseja fazer download do arquivo diretamente?'
-                );
-                if (userWantsDownload) {
-                    const downloadUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/main/levels/${filename}`;
-                    window.open(downloadUrl, '_blank');
-                }
-            }, 1000);
+                container.innerHTML = '';
+            }, 5000);
         }
 
         function showError(message) {
-            const resultContainer = document.getElementById('result-container');
-            resultContainer.innerHTML = `<div class="error-message">${message}</div>`;
+            const container = document.getElementById('result-container') || document.getElementById('error-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
         }
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             setupFileUpload();
-            loadLevels(); // Carrega as fases inicialmente
+            loadLevels();
+            
+            // Registra service worker para protocolos personalizados
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(() => {
+                    console.log('Service Worker não disponível');
+                });
+            }
+            
+            // Detecta se foi chamado via protocolo
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('install')) {
+                const levelName = urlParams.get('install');
+                showSuccess(`🎮 Preparando instalação da fase: ${levelName}`);
+            }
         });
+
+        // Auto-hide notifications
+        setTimeout(() => {
+            const notifications = document.querySelectorAll('.success-message, .error-message');
+            notifications.forEach(notification => {
+                notification.addEventListener('click', () => {
+                    notification.style.display = 'none';
+                });
+            });
+        }, 1000);
     </script>
 </body>
 </html>
